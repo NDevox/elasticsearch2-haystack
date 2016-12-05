@@ -1,0 +1,37 @@
+dist: trusty
+
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+matrix:
+  include:
+  - python: 3.5
+    env: ELASTICSEARCH_VERSION=2.4
+  - python: 3.5
+    env: ELASTICSEARCH_VERSION=1.7
+  - python: 3.4
+    env: ELASTICSEARCH_VERSION=2.4
+  - python: 3.4
+    env: ELASTICSEARCH_VERSION=1.7
+  - python: 2.7
+    env: ELASTICSEARCH_VERSION=2.4
+  - python: 2.7
+    env: ELASTICSEARCH_VERSION=1.7
+
+before_install:
+  - docker pull elasticsearch:$ELASTICSEARCH_VERSION
+  - docker run -d -p 9200:9200 elasticsearch:$ELASTICSEARCH_VERSION
+
+install:
+  - pip install -r test-requirements.txt
+  - pip install elasticsearch==$ELASTICSEARCH_VERSION
+
+before_script:
+  - sleep 10
+
+script:
+  - nosetests -v --with-coverage --cover-package=elasticsearch2_backend
